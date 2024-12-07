@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coranu - Thoughts, Ideas, and Stories</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js"></script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+        <span class="logo-icon"></span>
+        Coranu
+    </div>
+    <div class="search-bar">
+        <input type="text" placeholder="Search...">
+    </div>
+    <div class="auth-buttons">
+        <a href="login.html" class="login">Login</a>
+        <a href="./post.html" id="create-post-button"  >
+            <button class="post">Create Post</button>
+        </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Thoughts, Ideas, and Stories</h1>
+      <p>A space where creativity flows, ideas take shape, and stories come to life. Dive in, explore, and connect with insights that inspire and resonate.</p>
+    </section>
+
+    <section class="trending-topics">
+      <h2>Trending Topics</h2>
+      <div class="topics">
+        <button>Design Thinking</button>
+        <button>Technology</button>
+        <button>Web3</button>
+        <button>Programming</button>
+        <button>AI</button>
+      </div>
+    </section>
+
+    <!-- 7-minute read section (your original section) -->
+    <section class="articles">
+      <article>
+        <h3>Master JavaScript: 10 Essential Tips Every Developer Must Know</h3>
+        <p>
+          I'm always trying to think of new and interesting business ideas. I generally try to come up with ideas by thinking of what I would want to do or see in the world. Then, I try to find reasons why it wouldn't work...
+        </p>
+        <div class="article-meta">
+          <span>AI</span>
+          <span>By Harry Olund</span>
+          <span>4 min read</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Latest post from Firebase -->
+    <section class="articles">
+      <h2>Latest Post</h2>
+      <div id="latest-post"></div> <!-- Post will be displayed here -->
+    </section>
+
+    <section class="newsletter">
+      <h2>Stay up to date</h2>
+      <p>Join Our Newsletter</p>
+      <form>
+        <input type="email" placeholder="Enter your email..." required>
+        <button type="submit">Submit</button>
+      </form>
+      <p class="unsubscribe">*You can unsubscribe anytime</p>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBj61ozUOQYwyOeDrYitLElAzUaK3Kzfk",
+      authDomain: "myfirst-webapp.firebaseapp.com",
+      projectId: "myfirst-webapp",
+      storageBucket: "myfirst-webapp.firebasestorage.app",
+      messagingSenderId: "862813763911",
+      appId: "1:862813763911:web:08072b25920d1bd921b462",
+      measurementId: "G-LFC2EYVYQQ"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(app);
+
+    // Fetch the latest post from Firestore
+    db.collection("posts").orderBy("timestamp", "desc").limit(1).get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const post = doc.data();
+          const postContainer = document.getElementById("latest-post");
+          postContainer.innerHTML += `
+            <article>
+              <h3>${post.title}</h3>
+              <p>${post.description}</p>
+              ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image">` : ''}
+            </article>
+          `;
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching post: ", error);
+      });
+
+    // Check if the user is logged in
+    document.addEventListener('DOMContentLoaded', function () {
+      if (sessionStorage.getItem("userLoggedIn") === "true") {
+        // If logged in, show the "Create Post" button
+        document.getElementById("create-post-button").style.display = "block";
+      } else {
+        // If not logged in, hide the "Create Post" button
+        document.getElementById("create-post-button").style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>

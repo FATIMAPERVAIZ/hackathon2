@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+    <link rel="stylesheet" href="create-post.css">
+    <!-- Use the older Firebase SDK (v8.x) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+<body>
+    <div class="post-container">
+        <h2>Create a New Post</h2>
+        <form id="create-post-form">
+            <input type="text" id="title" placeholder="Post Title" required><br>
+            <textarea id="description" placeholder="Write your post here..." rows="5" required></textarea><br>
+            <input type="file" id="image" accept="image/*"><br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBj61ozUOQYwyOeDrYitLElAzUaK3Kzfk",
+            authDomain: "myfirst-webapp.firebaseapp.com",
+            projectId: "myfirst-webapp",
+            storageBucket: "myfirst-webapp.firebasestorage.app",
+            messagingSenderId: "862813763911",
+            appId: "1:862813763911:web:08072b25920d1bd921b462",
+            measurementId: "G-LFC2EYVYQQ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        document.getElementById("create-post-form").addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent form submission
+
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            const image = document.getElementById("image").files[0]; // Get the image file
+
+            let imageUrl = "";
+            if (image) {
+                const storageRef = storage.ref();
+                const imageRef = storageRef.child('images/' + image.name);
+
+                imageRef.put(image).then((snapshot) => {
+                    imageRef.getDownloadURL().then((url) => {
+                        imageUrl = url;
+                        // Now save the post data to Firestore
+                        savePost(title, description, imageUrl);
+                    });
+                }).catch((error) => {
+                    console.error("Error uploading image: ", error);
+                });
+            } else {
+                // If no image is uploaded, save the post without an image URL
+                savePost(title, description, null);
+            }
+        });
+
+        function savePost(title, description, imageUrl) {
+            db.collection("posts").add({
+                title: title,
+                description: description,
+                imageUrl: imageUrl,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                // Redirect to index.html after saving the post
+                window.location.href = "./index.html";
+            })
+            .catch((error) => {
+                console.error("Error adding post: ", error);
+            });
+        }
+    </script>
+</body>
+</html>
